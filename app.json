@@ -12,7 +12,7 @@
         "TESTMODE": {
             "description": "Use Telegram's test servers",
             "value": "0",
-            "required": False
+            "required": false
         },
         "EVERYONE CHATS": {
             "description": "Chats for everyone, space seperated, IDs only" 
@@ -23,18 +23,18 @@
         "PROGRESS UPDATE DELAY": { 
             "description": "Delay for progress and other things", 
             "value": "10",
-            "required": False
+            "required": false
         },
         "MAGNET TIMEOUT": {
             " description": "Timeout for magnets",
             "value": "60", 
-            "required": False 
+            "required": false 
         },
         "LEECH TIMEOUT": {
             "description": "Timeout for leeches",
             "value": "300", 
-            "required": False
-        },
+            "required": false
+        }
     },
     "stack": "container"
 }
