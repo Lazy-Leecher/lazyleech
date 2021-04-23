@@ -1,40 +1,11 @@
 {
-    "env": { 
-        "API_ID": {
-            "description": "https://my.telegram.org"
-        },
-        "API_HASH": { 
-            "description": "https://my.telegram.org"
-        },
-        "BOT_TOKEN": {
-            "description": "https://t.me/BotFather "
-        },
-        "TESTMODE": {
-            "description": "Use Telegram's test servers",
-            "value": "0",
-            "required": false
-        },
-        "EVERYONE CHATS": {
-            "description": "Chats for everyone, space seperated, IDs only" 
-        },
-        "ADMIN CHATS": { 
-            "description": "Chats for admins, space seperated, IDs only" 
-        },
-        "PROGRESS UPDATE DELAY": { 
-            "description": "Delay for progress and other things", 
-            "value": "10",
-            "required": false
-        },
-        "MAGNET TIMEOUT": {
-            " description": "Timeout for magnets",
-            "value": "60", 
-            "required": false 
-        },
-        "LEECH TIMEOUT": {
-            "description": "Timeout for leeches",
-            "value": "300", 
-            "required": false
-        }
-    },
-    "stack": "container"
+  "name": "Telegram Torrent Leecher",
+  "description": "A Telegram Torrent (and youtube-dl) Leecher based on Pyrogram. Powered by @torrentleechgdrivesupport!",
+  "keywords": [
+    "telegram"
+  ],
+  "repository": "https://github.com/yasirarism",
+  "success_url": "https://t.me/ymoviez",
+  "website": "https://www.yasir.my.id",
+  "stack": "container"
 }

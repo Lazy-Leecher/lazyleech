@@ -50,11 +50,11 @@ async def return_search(query, page=1, sukebei=False):
                 if splitted.scheme == 'magnet' and splitted.query:
                     link = f'<code>{link}</code>'
                 newtext = f'''{a + 1}. {html.escape(i["title"])}
-<b>Link:</b> {link}
-<b>Size:</b> {i["nyaa_size"]}
-<b>Seeders:</b> {i["nyaa_seeders"]}
-<b>Leechers:</b> {i["nyaa_leechers"]}
-<b>Category:</b> {i["nyaa_category"]}\n\n'''
+<b>▸ Link:</b> {link}
+<b>▸ Size:</b> {i["nyaa_size"]}
+<b>▸ Seeders:</b> {i["nyaa_seeders"]}
+<b>▸ Leechers:</b> {i["nyaa_leechers"]}
+<b>▸ Category:</b> {i["nyaa_category"]}\n\n'''
                 futtext = text + newtext
                 if (a and not a % 10) or len((await parser.parse(futtext))['message']) > 4096:
                     results.append(text)

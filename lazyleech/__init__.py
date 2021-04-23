@@ -20,16 +20,14 @@ import aiohttp
 from io import BytesIO, StringIO
 from pyrogram import Client
 
-API_ID = os.environ.get('API_ID')
-API_HASH = os.environ.get('API_HASH')
-BOT_TOKEN = os.environ.get('BOT_TOKEN')
+API_ID = "1878176"
+API_HASH = "4d597229f1a9f75e1ed8be46053d5dc8"
+BOT_TOKEN = "1514206544:AAFPLYOk49VoID2JRCbLRDYS6Uou-uudRJ8"
 TESTMODE = os.environ.get('TESTMODE')
 TESTMODE = TESTMODE and TESTMODE != '0'
 
-EVERYONE_CHATS = os.environ.get('EVERYONE_CHATS')
-EVERYONE_CHATS = list(map(int, EVERYONE_CHATS.split(' '))) if EVERYONE_CHATS else []
-ADMIN_CHATS = os.environ.get('ADMIN_CHATS')
-ADMIN_CHATS = list(map(int, ADMIN_CHATS.split(' '))) if ADMIN_CHATS else []
+EVERYONE_CHATS = [441422215]
+ADMIN_CHATS = [441422215]
 ALL_CHATS = EVERYONE_CHATS + ADMIN_CHATS
 
 PROGRESS_UPDATE_DELAY = int(os.environ.get('PROGRESS_UPDATE_DELAY', 10))
