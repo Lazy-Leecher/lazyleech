@@ -20,6 +20,7 @@ import traceback
 from pyrogram import idle
 from . import app, ADMIN_CHATS, preserved_logs
 from .utils.upload_worker import upload_worker
+from .plugins.nyaa_rss import pinger
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('pyrogram.syncer').setLevel(logging.WARNING)
@@ -41,6 +42,7 @@ async def main():
                         logging.exception('failed %s', i)
                         tb = traceback.format_exc()
     asyncio.create_task(_autorestart_worker())
+    await pinger
     await app.start()
     await idle()
     await app.stop()
