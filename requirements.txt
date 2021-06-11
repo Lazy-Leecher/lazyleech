@@ -3,4 +3,3 @@ feedparser
 pyrogram
 tgcrypto
 natsort
-lxml
