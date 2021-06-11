@@ -42,8 +42,8 @@ async def main():
                         logging.exception('failed %s', i)
                         tb = traceback.format_exc()
     asyncio.create_task(_autorestart_worker())
-    await pinger
     await app.start()
+    await pinger
     await idle()
     await app.stop()
 
