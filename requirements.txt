@@ -3,5 +3,5 @@ feedparser
 pyrogram
 tgcrypto
 natsort
-BeautifulSoup
+bs4
 lxml
