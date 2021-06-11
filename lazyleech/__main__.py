@@ -20,7 +20,6 @@ import traceback
 from pyrogram import idle
 from . import app, ADMIN_CHATS, preserved_logs
 from .utils.upload_worker import upload_worker
-from .plugins.nyaa_rss import pinger
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('pyrogram.syncer').setLevel(logging.WARNING)
