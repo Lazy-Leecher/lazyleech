@@ -15,14 +15,7 @@ from .leech import initiate_torrent
 rsslink = "https://nyaa.si/?page=rss&q=-batch&c=0_0&f=0&u=AkihitoSubsWeeklies"
 
 if DB_URL := os.environ.get('DB_URL'):
-    
-    print("Connecting to Database ...")
     _MGCLIENT: AgnosticClient = AsyncIOMotorClient(DB_URL)
-    _RUN = asyncio.get_event_loop().run_until_complete
-    if "ASWFeed" in _RUN(_MGCLIENT.list_database_names()):
-        print("ASWFeed Database Found :) => Now Logging to it...")
-    else:
-        print("ASWFeed Database Not Found :( => Creating New Database...")
     _DATABASE: AgnosticDatabase = _MGCLIENT["ASWFeed"]
     def get_collection(name: str) -> AgnosticCollection:
         """ Create or Get Collection from your database """
@@ -33,7 +26,6 @@ if DB_URL := os.environ.get('DB_URL'):
     A = get_collection('ASW_TITLE')
     
     async def rss_parser():
-        print('Parsing data from rss')
         da = bs(requests.get(rsslink).text, features="html.parser")
         if (await A.find_one())==None:
             await A.insert_one({'_id': str(da.find('item').find('title'))})
