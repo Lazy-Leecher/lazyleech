@@ -13,7 +13,7 @@ from pyrogram import Client, filters
 from .. import app, ADMIN_CHATS, ForceDocumentFlag
 from .leech import initiate_torrent
 
-rsslink = "https://nyaa.si/?page=rss&q=-batch&c=0_0&f=0&u=AkihitoSubsWeeklies"
+rsslink = list(filter(lambda x: x, map(int, os.environ.get("NYAA_RSS_LINKS", "https://nyaa.si/?page=rss&c=0_0&f=0&u=AkihitoSubsWeeklies").split(' '))))
 
 if os.environ.get('DB_URL'):
     DB_URL = os.environ.get('DB_URL')
@@ -28,20 +28,21 @@ if os.environ.get('DB_URL'):
     A = get_collection('ASW_TITLE')
     
     async def rss_parser():
-        da = bs(requests.get(rsslink).text, features="html.parser")
-        if (await A.find_one())==None:
-            await A.insert_one({'_id': str(da.find('item').find('title'))})
-            return
-        count_a = 0
         cr = []
-        for i in da.findAll('item'):
-            if (await A.find_one())['_id'] == str(i.find('title')):
-                break
-            cr.append([str(i.find('title')), (re.sub(r'<.*?>(.*)<.*?>', r'\1', str(i.find('guid')))).replace('view', 'download')+'.torrent'])
-            count_a+=1
-        if count_a!=0:
-            await A.drop()
-            await A.insert_one({'_id': str(da.find('item').find('title'))})
+        for i in rsslink:
+            da = bs(requests.get(i).text, features="html.parser")
+            if (await A.find_one({'site':i}))==None:
+                await A.insert_one({'_id': str(da.find('item').find('title')), 'site': i})
+                return
+            count_a = 0
+            for i in da.findAll('item'):
+                if (await A.find_one({'site': i}))['_id'] == str(i.find('title')):
+                    break
+                cr.append([str(i.find('title')), (re.sub(r'<.*?>(.*)<.*?>', r'\1', str(i.find('guid')))).replace('view', 'download')+'.torrent'])
+                count_a+=1
+            if count_a!=0:
+                await A.find_one_and_delete({'site': i})
+                await A.insert_one({'_id': str(da.find('item').find('title')), 'site': i})
         for i in cr:
             for ii in ADMIN_CHATS:
                 msg = await app.send_message(ii, f"New anime uploaded\n\n{i[0]}\n{i[1]}")
@@ -49,5 +50,5 @@ if os.environ.get('DB_URL'):
                 await initiate_torrent(app, msg, i[1], flags)
 
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(rss_parser, "interval", minutes=15)
+    scheduler.add_job(rss_parser, "interval", minutes=int(os.environ.get('RSS_RECHECK_INTERVAL', 5)))
     scheduler.start()
