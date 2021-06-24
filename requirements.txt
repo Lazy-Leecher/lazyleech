@@ -6,3 +6,4 @@ natsort
 requests
 bs4
 apscheduler
+motor
