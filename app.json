@@ -1,11 +1,32 @@
 {
   "name": "Telegram Torrent Leecher",
-  "description": "A Telegram Torrent (and youtube-dl) Leecher based on Pyrogram. Powered by @torrentleechgdrivesupport!",
+  "description": "A Telegram Torrent Leecher based on Pyrogram!",
   "keywords": [
     "telegram"
   ],
-  "repository": "https://github.com/yasirarism",
-  "success_url": "https://t.me/ymoviez",
-  "website": "https://www.yasir.my.id",
-  "stack": "container"
+  "repository": "https://github.com/lostb053/lazyleech",
+  "stack": "container",
+  "env":{
+        "API_ID":{
+            "description":"Get this value from https://my.telegram.org"
+        },
+        "API_HASH":{
+            "description":"Get this value from https://my.telegram.org"
+        },
+        "DB_URL":{
+            "description":"Mongodb url from https://cloud.mongodb.com/, guide: https://del.dog/mongodb_guide, if want to add auto download feature",
+            "required":false
+        },
+        "NYAA_RSS_LINKS":{
+            "description":"Add multiple nyaa links you wish to auto-download animes from, else leave it and will auto-download animes from AWS in all admin chats [Useless if no DB_URL added]",
+            "required":false
+        },
+        "RSS_RECHECK_INTERVAL":{
+            "description":"Add time in minutes, key is self-descriptive, set recheck interval else default is 5 minutes [Useless if no DB_URL added]",
+            "required":false
+        },
+        "BOT_TOKEN":{
+            "description":"Get this from https://t.me/botfather and enable Inline Mode"
+        }
+    },
 }
