@@ -15,7 +15,6 @@ from .leech import initiate_torrent
 rsslink = "https://nyaa.si/?page=rss&q=-batch&c=0_0&f=0&u=AkihitoSubsWeeklies"
 
 if os.environ.get('DB_URL'):
-    await asyncio.sleep(30)
     DB_URL = os.environ.get('DB_URL')
     _MGCLIENT: AgnosticClient = AsyncIOMotorClient(DB_URL)
     _DATABASE: AgnosticDatabase = _MGCLIENT["ASWFeed"]
