@@ -3,3 +3,6 @@ feedparser
 pyrogram
 tgcrypto
 natsort
+requests
+bs4
+apscheduler
