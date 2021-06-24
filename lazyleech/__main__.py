@@ -21,9 +21,6 @@ from pyrogram import idle
 from . import app, ADMIN_CHATS, preserved_logs
 from .utils.upload_worker import upload_worker
 
-logging.basicConfig(level=logging.INFO)
-logging.getLogger('pyrogram.syncer').setLevel(logging.WARNING)
-
 async def main():
     async def _autorestart_worker():
         while True:
