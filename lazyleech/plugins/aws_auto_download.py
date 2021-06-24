@@ -32,7 +32,7 @@ if os.environ.get('DB_URL'):
             await A.insert_one({'_id': str(da.find('item').find('title'))})
             return
         count_a = 0
-        for i in db.findAll('item'):
+        for i in da.findAll('item'):
             if (await A.find_one())['_id'] == str(i.find('title')):
                 break
             cr.append([str(i.find('title')), (re.sub(r'<.*?>(.*)<.*?>', r'\1', str(i.find('guid')))).replace('view', 'download')+'.torrent'])
