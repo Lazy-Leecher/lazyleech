@@ -4,6 +4,7 @@
 import os
 import asyncio
 import requests
+import re
 from bs4 import BeautifulSoup as bs
 from motor.motor_asyncio import AsyncIOMotorClient
 from motor.core import AgnosticClient, AgnosticDatabase, AgnosticCollection
@@ -32,6 +33,7 @@ if os.environ.get('DB_URL'):
             await A.insert_one({'_id': str(da.find('item').find('title'))})
             return
         count_a = 0
+        cr = []
         for i in da.findAll('item'):
             if (await A.find_one())['_id'] == str(i.find('title')):
                 break
