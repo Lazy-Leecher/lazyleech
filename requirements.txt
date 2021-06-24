@@ -7,3 +7,4 @@ requests
 bs4
 apscheduler
 motor
+dnspython
