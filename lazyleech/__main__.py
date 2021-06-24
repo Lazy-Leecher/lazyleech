@@ -44,8 +44,5 @@ async def main():
     await app.start()
     await idle()
     await app.stop()
-    if os.environ.get('DB_URL'):
-        from .plugins.aws_auto_download import _close_db
-        _close_db()
-
+    
 app.loop.run_until_complete(main())
