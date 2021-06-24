@@ -15,14 +15,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import asyncio
+import os
 import logging
 import traceback
 from pyrogram import idle
 from . import app, ADMIN_CHATS, preserved_logs
 from .utils.upload_worker import upload_worker
-
-logging.basicConfig(level=logging.INFO)
-logging.getLogger('pyrogram.syncer').setLevel(logging.WARNING)
 
 async def main():
     async def _autorestart_worker():
@@ -44,5 +42,8 @@ async def main():
     await app.start()
     await idle()
     await app.stop()
-
+    if os.environ.get('DB_URL'):
+        from plugins.aws_auto_download import _close_db
+        _close_db()
+    
 app.loop.run_until_complete(main())
