@@ -1,11 +1,7 @@
-<p align="center">
-  <img src="https://telegra.ph/file/1e1f6119d27511337af27.jpg">
-</p>
-
 # LazyLeech 
 
 <p align="center">
-“	Telegram Torrent Leeching Bot by Some Weebs ” 
+“	Heroku Supported Telegram Torrent Leeching Bot by Some Weebs ” 
 </p>
 
 # Table of Content
@@ -25,6 +21,7 @@ This is a telegram bot writen with pyrogram for leeching files on the internet t
 # Features
 - Leeching direct download links | Torrent | Magnets.
 - Thumbnail and Watermark Support.
+- Auto Download from nyaa.si (choose your uploader wisely, try not to add `https://nyaa.si/?page=rss` as your NYAA_RSS_LINK)
 - Torrent/Magnet Auto Detect Support.
 - Nyaa.si Search Support.
 - Upload as zip, streamable, document.
@@ -90,5 +87,5 @@ testwatermark
 - This repo is fork of [Anime Leeching Group](https://t.me/joinchat/BWHQ6lb_FmSP3pxfyYolfg) Bot Leafa-chan.
 - I dont own this repo, I have just Uploaded this code on github.
 - This Repo is meant for small groups.
-- Heroku Not Supported.
+- Heroku Supported.
 - This Repo is licenced under [AGPL](https://github.com/ShinchanNohara1/Torrent-Bot-Lazyleech/blob/Master/LICENSE) that means you have to share this repo if anyone ask.
