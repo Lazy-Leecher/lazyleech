@@ -5,6 +5,6 @@ tgcrypto
 natsort
 requests
 bs4
-apscheduler
+git+https://github.com/lostb053/apscheduler
 motor
 dnspython
