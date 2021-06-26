@@ -188,7 +188,7 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                     for i in (user_thumbnail, user_watermarked_thumbnail):
                         thumbnail = i if os.path.isfile(i) else thumbnail
                     mimetype = await get_file_mimetype(filepath)
-                    progress_args = (client, upload_wait, filename, user_id)
+                    progress_args = (client, message, upload_wait, filename, user_id)
                     try:
                         if not force_document and mimetype.startswith('video/'):
                             duration = 0
@@ -244,31 +244,38 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
 
 progress_callback_data = dict()
 stop_uploads = set()
-async def progress_callback(current, total, client, reply, filename, user_id):
-    message_identifier = (reply.chat.id, reply.message_id)
-    last_edit_time, prevtext, start_time, user_id = progress_callback_data.get(message_identifier, (0, None, time.time(), user_id))
-    if message_identifier in stop_uploads or current == total:
-        asyncio.create_task(reply.delete())
-        try:
-            progress_callback_data.pop(message_identifier)
-        except KeyError:
-            pass
-        if message_identifier in stop_uploads:
-            client.stop_transmission()
-    elif (time.time() - last_edit_time) > PROGRESS_UPDATE_DELAY:
-        if last_edit_time:
-            upload_speed = format_bytes((total - current) / (time.time() - start_time))
-        else:
-            upload_speed = '0 B'
-        text = f'''Uploading {html.escape(filename)}...
+async def progress_callback(current, total, client, message, reply, filename, user_id):
+    try:
+        message_identifier = (reply.chat.id, reply.message_id)
+        last_edit_time, prevtext, start_time, user_id = progress_callback_data.get(message_identifier, (0, None, time.time(), user_id))
+        if message_identifier in stop_uploads or current == total:
+            asyncio.create_task(reply.delete())
+            try:
+                progress_callback_data.pop(message_identifier)
+            except KeyError:
+                pass
+            if message_identifier in stop_uploads:
+                client.stop_transmission()
+        elif (time.time() - last_edit_time) > PROGRESS_UPDATE_DELAY:
+            if last_edit_time:
+                upload_speed = format_bytes((total - current) / (time.time() - start_time))
+            else:
+                upload_speed = '0 B'
+            text = f'''Uploading {html.escape(filename)}...
 <code>{html.escape(return_progress_string(current, total))}</code>
 
 <b>Total Size:</b> {format_bytes(total)}
 <b>Uploaded Size:</b> {format_bytes(current)}
 <b>Upload Speed:</b> {upload_speed}/s
 <b>ETA:</b> {calculate_eta(current, total, start_time)}'''
-        if prevtext != text:
-            await reply.edit_text(text)
-            prevtext = text
-            last_edit_time = time.time()
-            progress_callback_data[message_identifier] = last_edit_time, prevtext, start_time, user_id
+            if prevtext != text:
+                await reply.edit_text(text)
+                prevtext = text
+                last_edit_time = time.time()
+                progress_callback_data[message_identifier] = last_edit_time, prevtext, start_time, user_id
+    except Exception as ex:
+        preserved_logs.append((message, None, ex))
+        logging.exception('%s', message)
+        await message.reply_text(traceback.format_exc(), parse_mode=None)
+        for admin_chat in ADMIN_CHATS:
+            await client.send_message(admin_chat, traceback.format_exc(), parse_mode=None)
