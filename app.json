@@ -28,5 +28,5 @@
         "BOT_TOKEN":{
             "description":"Get this from https://t.me/botfather and enable Inline Mode"
         }
-    },
+    }
 }
