@@ -15,6 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
+import re
 import html
 import time
 import shutil
@@ -25,7 +26,7 @@ import tempfile
 import traceback
 from natsort import natsorted
 from pyrogram.parser import html as pyrogram_html
-from .. import PROGRESS_UPDATE_DELAY, ADMIN_CHATS, preserved_logs, TESTMODE, SendAsZipFlag, ForceDocumentFlag
+from .. import PROGRESS_UPDATE_DELAY, ADMIN_CHATS, preserved_logs, TESTMODE, SendAsZipFlag, ForceDocumentFlag, LICHER_CHAT, LICHER_STICKER, LICHER_FOOTER, LICHER_PARSE_EPISODE
 from .misc import split_files, get_file_mimetype, format_bytes, get_video_info, generate_thumbnail, return_progress_string, calculate_eta, watermark_photo
 
 upload_queue = asyncio.Queue()
@@ -91,7 +92,10 @@ async def _upload_worker(client, message, reply, torrent_info, user_id, flags):
         else:
             for file in torrent_info['files']:
                 filepath = file['path']
-                filename = filepath.replace(os.path.join(torrent_info['dir'], ''), '', 1)
+                if LICHER_PARSE_EPISODE:
+                    filename = re.sub(r'\s*(?:\[.+?\]|\(.+?\))\s*|\.[a-z][a-z0-9]{2}$', '', os.path.basename(filepath))
+                else:
+                    filename = filepath.replace(os.path.join(torrent_info['dir'], ''), '', 1)
                 files[filepath] = filename
         for filepath in natsorted(files):
             sent_files.extend(await _upload_file(client, message, reply, files[filepath], filepath, ForceDocumentFlag in flags))
@@ -119,6 +123,8 @@ async def _upload_worker(client, message, reply, torrent_info, user_id, flags):
         text = futtext
     if not sent_files:
         text = 'Files: None'
+    elif LICHER_CHAT and LICHER_STICKER and message.chat.id in ADMIN_CHATS:
+        await client.send_sticker(LICHER_CHAT, LICHER_STICKER)
     thing = await message.reply_text(text, quote=quote, disable_web_page_preview=True)
     if first_index is None:
         first_index = thing
@@ -222,6 +228,10 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                         continue
                     if resp:
                         sent_files.append((os.path.basename(filename), resp.link))
+                        if LICHER_CHAT and reply.chat.id in ADMIN_CHATS and mimetype.startswith('video/'):
+                            await client.send_video(LICHER_CHAT, resp.video.file_id, thumb=thumbnail,
+                                                    caption=filename + LICHER_FOOTER, duration=duration,
+                                                    width=width, height=height, parse_mode=None)
                         break
                     return sent_files
         return sent_files
