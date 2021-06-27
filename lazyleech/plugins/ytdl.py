@@ -13,7 +13,6 @@ from collections import defaultdict
 from pathlib import Path
 from re import compile as comp_regex
 from time import time
-from typing import Optional
 from ..utils.aiohttp_helper import AioHttp as get_response
 import ujson
 import youtube_dl
@@ -219,8 +218,9 @@ async def ytdl_download_callback(client: Client, c_q: CallbackQuery):
         await c_q.edit_message_media(
             media=(
                 InputMediaVideo(
-                    media='f_id',
-                    caption=f"📹  <b>[uploaded_media.caption]({yt_url})</b>",
+                    media=str(Path(_fpath)),
+                    caption=f"📹  <b>[{Path(_fpath).name}]({yt_url})</b>",
+                    thumb=thumb_pic
                 )
             ),
         )
@@ -228,8 +228,9 @@ async def ytdl_download_callback(client: Client, c_q: CallbackQuery):
         await c_q.edit_message_media(
             media=(
                 InputMediaAudio(
-                    media='f_id',
-                    caption=f"🎵  <b>[uploaded_media.caption]({yt_url})</b>",
+                    media=str(Path(_fpath)),
+                    caption=f"🎵  <b>[{Path(_fpath).name}]({yt_url})</b>",
+                    thumb=thumb_pic
                 )
             ),
         )
@@ -577,12 +578,12 @@ def rand_key():
 def post_to_telegraph(a_title: str, content: str) -> str:
     """ Create a Telegram Post using HTML Content """
     post_client = TelegraphPoster(use_api=True)
-    auth_name = "USERGE-𝑿"
+    auth_name = "LazyLeech"
     post_client.create_api_token(auth_name)
     post_page = post_client.post(
         title=a_title,
         author=auth_name,
-        author_url="https://t.me/x_xtests",
+        author_url="https://t.me/lostb053",
         text=content,
     )
     return post_page["url"]
@@ -600,24 +601,6 @@ def humanbytes(size: float) -> str:
         t_n += 1
     return "{:.2f} {}B".format(size, power_dict[t_n])
 
-
-def get_file_id(
-    message: Message,
-) -> Optional[str]:
-    """ get file_id """
-    if message is None:
-        return
-    file_ = (
-        message.audio
-        or message.animation
-        or message.photo
-        or message.sticker
-        or message.voice
-        or message.video_note
-        or message.video
-        or message.document
-    )
-    return file_.file_id if file_ else None
 
 def sublists(input_list: list, width: int = 3):
     return [input_list[x : x + width] for x in range(0, len(input_list), width)]
