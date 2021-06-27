@@ -69,7 +69,7 @@ def check_owner(func):
         gid = cq.message.chat.id
         if [gid, msg_id] in user_search[user]:
             try:
-                func(_, cq)
+                await func(_, cq)
             except FloodWait as e:
                 await asyncio.sleep(e.x)
             except MessageNotModified:
