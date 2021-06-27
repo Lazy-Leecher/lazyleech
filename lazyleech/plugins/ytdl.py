@@ -206,7 +206,7 @@ async def ytdl_download_callback(client: Client, c_q: CallbackQuery):
     await c_q.edit_message_text(
         text=(
             f"**⬇️ Downloading {media_type} ...**"
-            f"\n\n🔗  [<b>Link</b>]({yt_url})\n🆔  <b>Format Code</b> : {disp_str}"
+            f"\n\n🔗  <b><a href='{yt_url}'>Link</a></b>\n🆔  <b>Format Code</b> : {disp_str}"
         ),
     )
     if downtype == "v":
@@ -232,7 +232,7 @@ async def ytdl_download_callback(client: Client, c_q: CallbackQuery):
             media=(
                 InputMediaVideo(
                     media=str(Path(_fpath)),
-                    caption=f"📹  <b>[{Path(_fpath).name}]({yt_url})</b>",
+                    caption=f"📹  <b><a href = '{yt_url}'>{Path(_fpath).name}</a></b>",
                     thumb=thumb_pic
                 )
             ),
@@ -242,7 +242,7 @@ async def ytdl_download_callback(client: Client, c_q: CallbackQuery):
             media=(
                 InputMediaAudio(
                     media=str(Path(_fpath)),
-                    caption=f"🎵  <b>[{Path(_fpath).name}]({yt_url})</b>",
+                    caption=f"🎵  <b><a href = '{yt_url}'>{Path(_fpath).name}</a></b>",
                     thumb=thumb_pic
                 )
             ),

@@ -1,6 +1,6 @@
 {
   "name": "Telegram Torrent Leecher",
-  "description": "A Telegram Torrent Leecher based on Pyrogram!",
+  "description": "A Telegram Torrent Leecher and ytdl bot based on Pyrogram!",
   "keywords": [
     "telegram"
   ],

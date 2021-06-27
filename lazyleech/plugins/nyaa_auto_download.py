@@ -48,5 +48,5 @@ if os.environ.get('DB_URL'):
                 await initiate_torrent(app, msg, i[1], flags)
 
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(rss_parser, "interval", minutes=int(os.environ.get('RSS_RECHECK_INTERVAL', 5)))
+    scheduler.add_job(rss_parser, "interval", minutes=int(os.environ.get('RSS_RECHECK_INTERVAL', 5)), max_instances=5)
     scheduler.start()

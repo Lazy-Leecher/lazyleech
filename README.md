@@ -26,6 +26,7 @@ This is a telegram bot writen with pyrogram for leeching files on the internet t
 - Nyaa.si Search Support.
 - Upload as zip, streamable, document.
 - Can List All your Ongoing Leeches.
+- Advanced ytdl
 - Docker support.
 
 ## Bot Commands
