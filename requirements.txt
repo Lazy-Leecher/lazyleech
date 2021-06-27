@@ -1,4 +1,5 @@
 aiohttp
+aiohttp[speedups]>=3.7.3
 feedparser
 pyrogram
 tgcrypto
@@ -8,3 +9,7 @@ bs4
 apscheduler
 motor
 dnspython
+wget>=3.2
+youtube-search-python
+https://github.com/ytdl-org/youtube-dl
+html-telegraph-poster>=0.2.31
