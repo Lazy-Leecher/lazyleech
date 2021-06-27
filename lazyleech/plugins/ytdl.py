@@ -67,7 +67,7 @@ def check_owner(func):
         user = cq.from_user.id
         msg_id = cq.message.message_id
         gid = cq.message.chat.id
-        if user_search[user]==[msg_id, gid]:
+        if user_search[user]==[gid, msg_id]:
             try:
                 func(_, cq)
             except FloodWait as e:
