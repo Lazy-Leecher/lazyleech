@@ -43,7 +43,7 @@ async def main():
     await idle()
     await app.stop()
     if os.environ.get('DB_URL'):
-        from plugins.aws_auto_download import _close_db
+        from plugins.nyaa_auto_download import _close_db
         _close_db()
     
 app.loop.run_until_complete(main())

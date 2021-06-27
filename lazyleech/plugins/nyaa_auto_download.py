@@ -2,14 +2,12 @@
 ### if you want different uploader, just replace rsslink
 
 import os
-import asyncio
 import requests
 import re
 from bs4 import BeautifulSoup as bs
 from motor.motor_asyncio import AsyncIOMotorClient
 from motor.core import AgnosticClient, AgnosticDatabase, AgnosticCollection
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from pyrogram import Client, filters
 from .. import app, ADMIN_CHATS, ForceDocumentFlag
 from .leech import initiate_torrent
 
