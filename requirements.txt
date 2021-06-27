@@ -11,5 +11,6 @@ motor
 dnspython
 wget>=3.2
 youtube-search-python
+ujson
 git+https://github.com/ytdl-org/youtube-dl
 html-telegraph-poster>=0.2.31
