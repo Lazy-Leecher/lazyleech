@@ -454,7 +454,6 @@ def get_choice_by_id(choice_id, media_type: str):
 async def result_formatter(results: list):
     output = {}
     for index, r in enumerate(results, start=1):
-        thumb = (r.get("thumbnails").pop()).get("url")
         upld = r.get("channel")
         title = f'<a href={r.get("link")}><b>{r.get("title")}</b></a>\n'
         out = title
@@ -470,6 +469,7 @@ async def result_formatter(results: list):
             out += "<b>❯  Uploader:</b> "
             out += f'<a href={upld.get("link")}>{upld.get("name")}</a>'
         v_deo_id = r.get("id")
+        thumb = f"https://i.ytimg.com/vi/{v_deo_id}/maxresdefault.jpg"
         output[index] = dict(
             message=out,
             thumb=thumb,
@@ -580,7 +580,7 @@ def download_button(vid: str, body: bool = False):
         width=2,
     )
     if body:
-        vid_body = f"<b>[{vid_data.get('title')}]({vid_data.get('webpage_url')})</b>"
+        vid_body = f"<b><a href='{vid_data.get('webpage_url')}'>{vid_data.get('title')}</a></b>"
         return vid_body, InlineKeyboardMarkup(buttons)
     return InlineKeyboardMarkup(buttons)
 
