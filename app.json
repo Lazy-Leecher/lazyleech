@@ -13,6 +13,9 @@
         "API_HASH":{
             "description":"Get this value from https://my.telegram.org"
         },
+        "ADMIN_CHATS":{
+            "description":"Chats where this bot will respond and leech"
+        },
         "DB_URL":{
             "description":"Mongodb url from https://cloud.mongodb.com/, guide: https://del.dog/mongodb_guide, if want to add auto download feature",
             "required":false
