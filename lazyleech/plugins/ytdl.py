@@ -23,6 +23,7 @@ import ujson
 import youtube_dl
 from html_telegraph_poster import TelegraphPoster
 from pyrogram import filters, Client
+from pyrogram.errors import FloodWait, MessageNotModified
 from pyrogram.types import (
     CallbackQuery,
     InlineKeyboardButton,
@@ -64,9 +65,18 @@ class YT_Search_X:
 def check_owner(func):
     async def wrapper(_, cq: CallbackQuery):
         user = cq.from_user.id
-        key_ = ""
-        if user_search[user]:
-            ""
+        msg_id = cq.message.message_id
+        gid = cq.message.chat.id
+        if user_search[user]==[msg_id, gid]:
+            try:
+                func(_, cq)
+            except FloodWait as e:
+                await asyncio.sleep(e.x)
+                pass
+            except MessageNotModified:
+                pass
+        else:
+            await cq.answer("Not your query!!!", show_alert=True)
     return wrapper
 
 
@@ -118,15 +128,20 @@ async def iytdl_inline(client: Client, message: Message):
         elif reply.caption:
             input_url = reply.caption
     if not input_url:
-        return await message.reply_text("Input or reply to a valid youtube URL", del_in=5)
-    await message.edit_text(f"🔎 Searching Youtube for: <code>'{input_url}'</code>")
+        x = await message.reply_text("Input or reply to a valid youtube URL")
+        await asyncio.sleep(5)
+        await x.delete()
+        return
+    x = await message.reply_text(f"🔎 Searching Youtube for: <code>'{input_url}'</code>")
     input_url = input_url.strip()
     link = get_yt_video_id(input_url)
     if link is None:
         search_ = VideosSearch(input_url, limit=15)
         resp = (search_.result()).get("result")
         if len(resp) == 0:
-            await message.reply_text(f'No Results found for "{input_url}"', del_in=7)
+            await x.edit_text(f'No Results found for "{input_url}"')
+            await asyncio.sleep(5)
+            await x.delete()
             return
         outdata = await result_formatter(resp)
         key_ = rand_key()
@@ -156,13 +171,14 @@ async def iytdl_inline(client: Client, message: Message):
     else:
         caption, buttons = await download_button(link, body=True)
         photo = await get_ytthumb(link)
-    await client.send_photo(
+    msg = await client.send_photo(
         message.chat.id,
         photo=photo,
         caption=caption,
         reply_markup=buttons,
     )
-    user_search[message.from_user.id].append(key_)
+    await x.delete()
+    user_search[message.from_user.id].append([msg.chat.id, msg.message_id])
 
 
 @Client.on_callback_query(
