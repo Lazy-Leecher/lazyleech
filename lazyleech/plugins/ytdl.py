@@ -64,15 +64,12 @@ class YT_Search_X:
 
 def check_owner(func):
     async def wrapper(_, cq: CallbackQuery):
-        user = cq.from_user.id
-        msg_id = cq.message.message_id
-        gid = cq.message.chat.id
-        if [gid, msg_id] in user_search[user]:
+        user = cq.from_user.id        
+        if user_search[user].reply_to_message.from_user.id==user:
             try:
                 func(_, cq)
             except FloodWait as e:
                 await asyncio.sleep(e.x)
-                pass
             except MessageNotModified:
                 pass
         else:
@@ -171,14 +168,14 @@ async def iytdl_inline(client: Client, message: Message):
     else:
         caption, buttons = await download_button(link, body=True)
         photo = await get_ytthumb(link)
-    msg = await client.send_photo(
+    msg = await message.reply_photo(
         message.chat.id,
         photo=photo,
         caption=caption,
         reply_markup=buttons,
     )
     await x.delete()
-    user_search[message.from_user.id].append([msg.chat.id, msg.message_id])
+    user_search[message.from_user.id].append([msg])
 
 
 @Client.on_callback_query(
