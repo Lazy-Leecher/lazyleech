@@ -228,7 +228,7 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                         continue
                     if resp:
                         sent_files.append((os.path.basename(filename), resp.link))
-                        if LICHER_CHAT and reply.chat.id in ADMIN_CHATS and mimetype.startswith('video/'):
+                        if LICHER_CHAT and reply.chat.id in ADMIN_CHATS and mimetype.startswith('video/') and resp.video:
                             await client.send_video(LICHER_CHAT, resp.video.file_id, thumb=thumbnail,
                                                     caption=filename + LICHER_FOOTER, duration=duration,
                                                     width=width, height=height, parse_mode=None)
