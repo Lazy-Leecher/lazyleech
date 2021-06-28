@@ -15,6 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
+import re
 import html
 import time
 import shutil
@@ -25,7 +26,7 @@ import tempfile
 import traceback
 from natsort import natsorted
 from pyrogram.parser import html as pyrogram_html
-from .. import PROGRESS_UPDATE_DELAY, ADMIN_CHATS, preserved_logs, TESTMODE, SendAsZipFlag, ForceDocumentFlag
+from .. import PROGRESS_UPDATE_DELAY, ADMIN_CHATS, preserved_logs, TESTMODE, SendAsZipFlag, ForceDocumentFlag, LICHER_CHAT, LICHER_STICKER, LICHER_FOOTER, LICHER_PARSE_EPISODE
 from .misc import split_files, get_file_mimetype, format_bytes, get_video_info, generate_thumbnail, return_progress_string, calculate_eta, watermark_photo
 
 upload_queue = asyncio.Queue()
@@ -91,7 +92,10 @@ async def _upload_worker(client, message, reply, torrent_info, user_id, flags):
         else:
             for file in torrent_info['files']:
                 filepath = file['path']
-                filename = filepath.replace(os.path.join(torrent_info['dir'], ''), '', 1)
+                if LICHER_PARSE_EPISODE:
+                    filename = re.sub(r'\s*(?:\[.+?\]|\(.+?\))\s*|\.[a-z][a-z0-9]{2}$', '', os.path.basename(filepath))
+                else:
+                    filename = filepath.replace(os.path.join(torrent_info['dir'], ''), '', 1)
                 files[filepath] = filename
         for filepath in natsorted(files):
             sent_files.extend(await _upload_file(client, message, reply, files[filepath], filepath, ForceDocumentFlag in flags))
@@ -119,6 +123,8 @@ async def _upload_worker(client, message, reply, torrent_info, user_id, flags):
         text = futtext
     if not sent_files:
         text = 'Files: None'
+    elif LICHER_CHAT and LICHER_STICKER and message.chat.id in ADMIN_CHATS:
+        await client.send_sticker(LICHER_CHAT, LICHER_STICKER)
     thing = await message.reply_text(text, quote=quote, disable_web_page_preview=True)
     if first_index is None:
         first_index = thing
@@ -182,7 +188,7 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                     for i in (user_thumbnail, user_watermarked_thumbnail):
                         thumbnail = i if os.path.isfile(i) else thumbnail
                     mimetype = await get_file_mimetype(filepath)
-                    progress_args = (client, upload_wait, filename, user_id)
+                    progress_args = (client, message, upload_wait, filename, user_id)
                     try:
                         if not force_document and mimetype.startswith('video/'):
                             duration = 0
@@ -222,6 +228,10 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                         continue
                     if resp:
                         sent_files.append((os.path.basename(filename), resp.link))
+                        if LICHER_CHAT and reply.chat.id in ADMIN_CHATS and mimetype.startswith('video/') and resp.video:
+                            await client.send_video(LICHER_CHAT, resp.video.file_id, thumb=thumbnail,
+                                                    caption=filename + LICHER_FOOTER, duration=duration,
+                                                    width=width, height=height, parse_mode=None)
                         break
                     return sent_files
         return sent_files
@@ -234,31 +244,38 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
 
 progress_callback_data = dict()
 stop_uploads = set()
-async def progress_callback(current, total, client, reply, filename, user_id):
-    message_identifier = (reply.chat.id, reply.message_id)
-    last_edit_time, prevtext, start_time, user_id = progress_callback_data.get(message_identifier, (0, None, time.time(), user_id))
-    if message_identifier in stop_uploads or current == total:
-        asyncio.create_task(reply.delete())
-        try:
-            progress_callback_data.pop(message_identifier)
-        except KeyError:
-            pass
-        if message_identifier in stop_uploads:
-            client.stop_transmission()
-    elif (time.time() - last_edit_time) > PROGRESS_UPDATE_DELAY:
-        if last_edit_time:
-            upload_speed = format_bytes((total - current) / (time.time() - start_time))
-        else:
-            upload_speed = '0 B'
-        text = f'''Uploading {html.escape(filename)}...
+async def progress_callback(current, total, client, message, reply, filename, user_id):
+    try:
+        message_identifier = (reply.chat.id, reply.message_id)
+        last_edit_time, prevtext, start_time, user_id = progress_callback_data.get(message_identifier, (0, None, time.time(), user_id))
+        if message_identifier in stop_uploads or current == total:
+            asyncio.create_task(reply.delete())
+            try:
+                progress_callback_data.pop(message_identifier)
+            except KeyError:
+                pass
+            if message_identifier in stop_uploads:
+                client.stop_transmission()
+        elif (time.time() - last_edit_time) > PROGRESS_UPDATE_DELAY:
+            if last_edit_time:
+                upload_speed = format_bytes((total - current) / (time.time() - start_time))
+            else:
+                upload_speed = '0 B'
+            text = f'''Uploading {html.escape(filename)}...
 <code>{html.escape(return_progress_string(current, total))}</code>
 
 <b>Total Size:</b> {format_bytes(total)}
 <b>Uploaded Size:</b> {format_bytes(current)}
 <b>Upload Speed:</b> {upload_speed}/s
 <b>ETA:</b> {calculate_eta(current, total, start_time)}'''
-        if prevtext != text:
-            await reply.edit_text(text)
-            prevtext = text
-            last_edit_time = time.time()
-            progress_callback_data[message_identifier] = last_edit_time, prevtext, start_time, user_id
+            if prevtext != text:
+                await reply.edit_text(text)
+                prevtext = text
+                last_edit_time = time.time()
+                progress_callback_data[message_identifier] = last_edit_time, prevtext, start_time, user_id
+    except Exception as ex:
+        preserved_logs.append((message, None, ex))
+        logging.exception('%s', message)
+        await message.reply_text(traceback.format_exc(), parse_mode=None)
+        for admin_chat in ADMIN_CHATS:
+            await client.send_message(admin_chat, traceback.format_exc(), parse_mode=None)

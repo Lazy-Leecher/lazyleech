@@ -15,6 +15,16 @@ EVERYONE_CHATS = list(map(int, EVERYONE_CHATS.split(' '))) if EVERYONE_CHATS els
 ADMIN_CHATS = os.environ.get('ADMIN_CHATS')
 ADMIN_CHATS = list(map(int, ADMIN_CHATS.split(' '))) if ADMIN_CHATS else [441422215]
 ALL_CHATS = EVERYONE_CHATS + ADMIN_CHATS
+# LICHER_* variables are for @animebatchstash and similar, not required
+LICHER_CHAT = os.environ.get('LICHER_CHAT', '')
+try:
+    LICHER_CHAT = int(LICHER_CHAT)
+except ValueError:
+    pass
+LICHER_STICKER = os.environ.get('LICHER_STICKER')
+LICHER_FOOTER = os.environ.get('LICHER_FOOTER', '').encode().decode('unicode_escape')
+LICHER_PARSE_EPISODE = os.environ.get('LICHER_PARSE_EPISODE')
+LICHER_PARSE_EPISODE = LICHER_PARSE_EPISODE and LICHER_PARSE_EPISODE != '0'
 
 PROGRESS_UPDATE_DELAY = int(os.environ.get('PROGRESS_UPDATE_DELAY', 5))
 MAGNET_TIMEOUT = int(os.environ.get('LEECH_TIMEOUT', 60))
