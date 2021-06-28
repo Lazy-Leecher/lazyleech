@@ -1,3 +1,5 @@
+FROM ubuntu:20.04
+
 COPY run.sh requirements.txt testwatermark.jpg /app/
 COPY lazyleech /app/lazyleech/
 ARG DEBIAN_FRONTEND=noninteractive
