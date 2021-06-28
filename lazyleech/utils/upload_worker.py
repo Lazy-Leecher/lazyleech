@@ -243,7 +243,7 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
         if split_task:
             split_task.cancel()
         async with message_exists_lock:
-            message_exists[upload_wait].discard(upload_wait.message_id)
+            message_exists[upload_wait.chat.id].discard(upload_wait.message_id)
         asyncio.create_task(upload_wait.delete())
         async with upload_tamper_lock:
             upload_waits.pop(upload_identifier)
