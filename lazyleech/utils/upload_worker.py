@@ -26,7 +26,7 @@ import tempfile
 import traceback
 from natsort import natsorted
 from pyrogram.parser import html as pyrogram_html
-from .. import PROGRESS_UPDATE_DELAY, ADMIN_CHATS, preserved_logs, TESTMODE, SendAsZipFlag, ForceDocumentFlag, LICHER_CHAT, LICHER_STICKER, LICHER_FOOTER, LICHER_PARSE_EPISODE, app
+from .. import PROGRESS_UPDATE_DELAY, ADMIN_CHATS, preserved_logs, TESTMODE, SendAsZipFlag, ForceDocumentFlag, LICHER_CHAT, LICHER_STICKER, LICHER_FOOTER, LICHER_PARSE_EPISODE
 from .misc import split_files, get_file_mimetype, format_bytes, get_video_info, generate_thumbnail, return_progress_string, calculate_eta, watermark_photo
 
 upload_queue = asyncio.Queue()
@@ -99,11 +99,36 @@ async def _upload_worker(client, message, reply, torrent_info, user_id, flags):
                 files[filepath] = filename
         for filepath in natsorted(files):
             sent_files.extend(await _upload_file(client, message, reply, files[filepath], filepath, ForceDocumentFlag in flags))
-    if LICHER_CHAT and LICHER_STICKER and message.chat.id in ADMIN_CHATS:
+    text = 'Files:\n'
+    parser = pyrogram_html.HTML(client)
+    quote = None
+    first_index = None
+    all_amount = 1
+    for filename, filelink in sent_files:
+        if filelink:
+            atext = f'- <a href="{filelink}">{html.escape(filename)}</a>'
+        else:
+            atext = f'- {html.escape(filename)} (empty)'
+        atext += '\n'
+        futtext = text + atext
+        if all_amount > 100 or len((await parser.parse(futtext))['message']) > 4096:
+            thing = await message.reply_text(text, quote=quote, disable_web_page_preview=True)
+            if first_index is None:
+                first_index = thing
+            quote = False
+            futtext = atext
+            all_amount = 1
+            await asyncio.sleep(PROGRESS_UPDATE_DELAY)
+        all_amount += 1
+        text = futtext
+    if not sent_files:
+        text = 'Files: None'
+    elif LICHER_CHAT and LICHER_STICKER and message.chat.id in ADMIN_CHATS:
         await client.send_sticker(LICHER_CHAT, LICHER_STICKER)
-    asyncio.create_task(reply.edit_text(f'Download successful, files uploaded', disable_web_page_preview=True))
-    asyncio.create_task(await asyncio.sleep(5))
-    asyncio.create_task(reply.delete())
+    thing = await message.reply_text(text, quote=quote, disable_web_page_preview=True)
+    if first_index is None:
+        first_index = thing
+    asyncio.create_task(reply.edit_text(f'Download successful, files uploaded.\nFiles: {first_index.link}', disable_web_page_preview=True))
 
 async def _upload_file(client, message, reply, filename, filepath, force_document):
     if not os.path.getsize(filepath):
@@ -190,12 +215,12 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                                         break
                             else:
                                 width = height = 0
-                            resp = await app.send_video(reply.chat.id, filepath, thumb=thumbnail, caption=filename,
+                            resp = await reply.reply_video(filepath, thumb=thumbnail, caption=filename,
                                                            duration=duration, width=width, height=height,
                                                            parse_mode=None, progress=progress_callback,
                                                            progress_args=progress_args)
                         else:
-                            resp = await app.send_document(reply.chat.id, filepath, thumb=thumbnail, caption=filename,
+                            resp = await reply.reply_document(filepath, thumb=thumbnail, caption=filename,
                                                               parse_mode=None, progress=progress_callback,
                                                               progress_args=progress_args)
                     except Exception:
