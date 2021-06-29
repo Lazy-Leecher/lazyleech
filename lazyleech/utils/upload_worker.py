@@ -13,7 +13,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 import os
 import re
 import html
@@ -32,6 +31,7 @@ from .misc import split_files, get_file_mimetype, format_bytes, get_video_info, 
 upload_queue = asyncio.Queue()
 upload_statuses = dict()
 upload_tamper_lock = asyncio.Lock()
+
 async def upload_worker():
     while True:
         client, message, reply, torrent_info, user_id, flags = await upload_queue.get()
@@ -241,7 +241,6 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
         asyncio.create_task(upload_wait.delete())
         async with upload_tamper_lock:
             upload_waits.pop(upload_identifier)
-
 progress_callback_data = dict()
 stop_uploads = set()
 async def progress_callback(current, total, client, message, reply, filename, user_id):
@@ -263,7 +262,6 @@ async def progress_callback(current, total, client, message, reply, filename, us
                 upload_speed = '0 B'
             text = f'''Uploading {html.escape(filename)}...
 <code>{html.escape(return_progress_string(current, total))}</code>
-
 <b>Total Size:</b> {format_bytes(total)}
 <b>Uploaded Size:</b> {format_bytes(current)}
 <b>Upload Speed:</b> {upload_speed}/s
