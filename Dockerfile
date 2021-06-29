@@ -1,7 +1,7 @@
 FROM ubuntu:20.04
 
-COPY run.sh requirements.txt testwatermark.jpg /app/ \
-     && lazyleech /app/lazyleech/
+COPY run.sh requirements.txt testwatermark.jpg /app/
+COPY lazyleech /app/lazyleech/
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt -y update && \
     apt -y install git && \
