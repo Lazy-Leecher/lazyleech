@@ -29,23 +29,9 @@ from .. import PROGRESS_UPDATE_DELAY, ADMIN_CHATS, preserved_logs, TESTMODE, Sen
 from .misc import split_files, get_file_mimetype, format_bytes, get_video_info, generate_thumbnail, return_progress_string, calculate_eta, watermark_photo
 
 upload_queue = asyncio.Queue()
-
-    
-          
-            
-    
-
-          
-          
-            
-    
-
-          
-    
-    @@ -99,36 +99,11 @@ def _zip_files():
-  
 upload_statuses = dict()
 upload_tamper_lock = asyncio.Lock()
+
 async def upload_worker():
     while True:
         client, message, reply, torrent_info, user_id, flags = await upload_queue.get()
@@ -83,6 +69,7 @@ async def upload_worker():
             shutil.rmtree(torrent_info['dir'])
         if task:
             await task
+
 upload_waits = dict()
 async def _upload_worker(client, message, reply, torrent_info, user_id, flags):
     files = dict()
@@ -145,21 +132,6 @@ async def _upload_worker(client, message, reply, torrent_info, user_id, flags):
 
 async def _upload_file(client, message, reply, filename, filepath, force_document):
     if not os.path.getsize(filepath):
-
-    
-          
-            
-    
-
-          
-          
-            
-    
-
-          
-    
-    @@ -215,12 +190,12 @@ async def _split_files():
-  
         return [(os.path.basename(filename), None)]
     worker_identifier = (reply.chat.id, reply.message_id)
     user_id = message.from_user.id
@@ -252,16 +224,6 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                                                               parse_mode=None, progress=progress_callback,
                                                               progress_args=progress_args)
                     except Exception:
-
-    
-          
-            
-    
-
-          
-    
-    
-  
                         await message.reply_text(traceback.format_exc(), parse_mode=None)
                         continue
                     if resp:
