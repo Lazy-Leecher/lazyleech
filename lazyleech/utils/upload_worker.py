@@ -13,7 +13,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 import os
 import re
 import html
@@ -26,10 +25,25 @@ import tempfile
 import traceback
 from natsort import natsorted
 from pyrogram.parser import html as pyrogram_html
-from .. import PROGRESS_UPDATE_DELAY, ADMIN_CHATS, preserved_logs, TESTMODE, SendAsZipFlag, ForceDocumentFlag, LICHER_CHAT, LICHER_STICKER, LICHER_FOOTER, LICHER_PARSE_EPISODE, app
+from .. import PROGRESS_UPDATE_DELAY, ADMIN_CHATS, preserved_logs, TESTMODE, SendAsZipFlag, ForceDocumentFlag, LICHER_CHAT, LICHER_STICKER, LICHER_FOOTER, LICHER_PARSE_EPISODE
 from .misc import split_files, get_file_mimetype, format_bytes, get_video_info, generate_thumbnail, return_progress_string, calculate_eta, watermark_photo
 
 upload_queue = asyncio.Queue()
+
+    
+          
+            
+    
+
+          
+          
+            
+    
+
+          
+    
+    @@ -99,36 +99,11 @@ def _zip_files():
+  
 upload_statuses = dict()
 upload_tamper_lock = asyncio.Lock()
 async def upload_worker():
@@ -69,7 +83,6 @@ async def upload_worker():
             shutil.rmtree(torrent_info['dir'])
         if task:
             await task
-
 upload_waits = dict()
 async def _upload_worker(client, message, reply, torrent_info, user_id, flags):
     files = dict()
@@ -99,14 +112,54 @@ async def _upload_worker(client, message, reply, torrent_info, user_id, flags):
                 files[filepath] = filename
         for filepath in natsorted(files):
             sent_files.extend(await _upload_file(client, message, reply, files[filepath], filepath, ForceDocumentFlag in flags))
-    if LICHER_CHAT and LICHER_STICKER and message.chat.id in ADMIN_CHATS:
+    text = 'Files:\n'
+    parser = pyrogram_html.HTML(client)
+    quote = None
+    first_index = None
+    all_amount = 1
+    for filename, filelink in sent_files:
+        if filelink:
+            atext = f'- <a href="{filelink}">{html.escape(filename)}</a>'
+        else:
+            atext = f'- {html.escape(filename)} (empty)'
+        atext += '\n'
+        futtext = text + atext
+        if all_amount > 100 or len((await parser.parse(futtext))['message']) > 4096:
+            thing = await message.reply_text(text, quote=quote, disable_web_page_preview=True)
+            if first_index is None:
+                first_index = thing
+            quote = False
+            futtext = atext
+            all_amount = 1
+            await asyncio.sleep(PROGRESS_UPDATE_DELAY)
+        all_amount += 1
+        text = futtext
+    if not sent_files:
+        text = 'Files: None'
+    elif LICHER_CHAT and LICHER_STICKER and message.chat.id in ADMIN_CHATS:
         await client.send_sticker(LICHER_CHAT, LICHER_STICKER)
-    asyncio.create_task(reply.edit_text(f'Download successful, files uploaded', disable_web_page_preview=True))
-    asyncio.create_task(await asyncio.sleep(5))
-    asyncio.create_task(reply.delete())
+    thing = await message.reply_text(text, quote=quote, disable_web_page_preview=True)
+    if first_index is None:
+        first_index = thing
+    asyncio.create_task(reply.edit_text(f'Download successful, files uploaded.\nFiles: {first_index.link}', disable_web_page_preview=True))
 
 async def _upload_file(client, message, reply, filename, filepath, force_document):
     if not os.path.getsize(filepath):
+
+    
+          
+            
+    
+
+          
+          
+            
+    
+
+          
+    
+    @@ -215,12 +190,12 @@ async def _split_files():
+  
         return [(os.path.basename(filename), None)]
     worker_identifier = (reply.chat.id, reply.message_id)
     user_id = message.from_user.id
@@ -190,15 +243,25 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                                         break
                             else:
                                 width = height = 0
-                            resp = await app.send_video(reply.chat.id, filepath, thumb=thumbnail, caption=filename,
+                            resp = await reply.reply_video(filepath, thumb=thumbnail, caption=filename,
                                                            duration=duration, width=width, height=height,
                                                            parse_mode=None, progress=progress_callback,
                                                            progress_args=progress_args)
                         else:
-                            resp = await app.send_document(reply.chat.id, filepath, thumb=thumbnail, caption=filename,
+                            resp = await reply.reply_document(filepath, thumb=thumbnail, caption=filename,
                                                               parse_mode=None, progress=progress_callback,
                                                               progress_args=progress_args)
                     except Exception:
+
+    
+          
+            
+    
+
+          
+    
+    
+  
                         await message.reply_text(traceback.format_exc(), parse_mode=None)
                         continue
                     if resp:
@@ -216,7 +279,6 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
         asyncio.create_task(upload_wait.delete())
         async with upload_tamper_lock:
             upload_waits.pop(upload_identifier)
-
 progress_callback_data = dict()
 stop_uploads = set()
 async def progress_callback(current, total, client, message, reply, filename, user_id):
@@ -238,7 +300,6 @@ async def progress_callback(current, total, client, message, reply, filename, us
                 upload_speed = '0 B'
             text = f'''Uploading {html.escape(filename)}...
 <code>{html.escape(return_progress_string(current, total))}</code>
-
 <b>Total Size:</b> {format_bytes(total)}
 <b>Uploaded Size:</b> {format_bytes(current)}
 <b>Upload Speed:</b> {upload_speed}/s
