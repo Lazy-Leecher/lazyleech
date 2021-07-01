@@ -13,6 +13,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import os
 import re
 import html
@@ -23,6 +24,7 @@ import asyncio
 import zipfile
 import tempfile
 import traceback
+from collections import defaultdict
 from natsort import natsorted
 from pyrogram.parser import html as pyrogram_html
 from .. import PROGRESS_UPDATE_DELAY, ADMIN_CHATS, preserved_logs, TESTMODE, SendAsZipFlag, ForceDocumentFlag, LICHER_CHAT, LICHER_STICKER, LICHER_FOOTER, LICHER_PARSE_EPISODE
@@ -31,7 +33,8 @@ from .misc import split_files, get_file_mimetype, format_bytes, get_video_info, 
 upload_queue = asyncio.Queue()
 upload_statuses = dict()
 upload_tamper_lock = asyncio.Lock()
-
+message_exists = defaultdict(set)
+message_exists_lock = asyncio.Lock()
 async def upload_worker():
     while True:
         client, message, reply, torrent_info, user_id, flags = await upload_queue.get()
@@ -140,6 +143,7 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
     user_watermarked_thumbnail = os.path.join(str(user_id), 'watermarked_thumbnail.jpg')
     file_has_big = os.path.getsize(filepath) > 2097152000
     upload_wait = await reply.reply_text(f'Upload of {html.escape(filename)} will start in {PROGRESS_UPDATE_DELAY}s')
+    message_exists[upload_wait.chat.id].add(upload_wait.message_id)
     upload_identifier = (upload_wait.chat.id, upload_wait.message_id)
     async with upload_tamper_lock:
         upload_waits[upload_identifier] = user_id, worker_identifier
@@ -238,13 +242,18 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
     finally:
         if split_task:
             split_task.cancel()
+        async with message_exists_lock:
+            message_exists[upload_wait.chat.id].discard(upload_wait.message_id)
         asyncio.create_task(upload_wait.delete())
         async with upload_tamper_lock:
             upload_waits.pop(upload_identifier)
+
 progress_callback_data = dict()
 stop_uploads = set()
 async def progress_callback(current, total, client, message, reply, filename, user_id):
     try:
+        if reply.message_id not in message_exists[reply.chat.id]:
+            return
         message_identifier = (reply.chat.id, reply.message_id)
         last_edit_time, prevtext, start_time, user_id = progress_callback_data.get(message_identifier, (0, None, time.time(), user_id))
         if message_identifier in stop_uploads or current == total:
@@ -266,8 +275,11 @@ async def progress_callback(current, total, client, message, reply, filename, us
 <b>Uploaded Size:</b> {format_bytes(current)}
 <b>Upload Speed:</b> {upload_speed}/s
 <b>ETA:</b> {calculate_eta(current, total, start_time)}'''
-            if prevtext != text:
-                await reply.edit_text(text)
+            if prevtext != text and reply.message_id in message_exists[reply.chat.id]:
+                async with message_exists_lock:
+                    if reply.message_id not in message_exists[reply.chat.id]:
+                        return
+                    await reply.edit_text(text)
                 prevtext = text
                 last_edit_time = time.time()
                 progress_callback_data[message_identifier] = last_edit_time, prevtext, start_time, user_id
