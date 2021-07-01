@@ -27,6 +27,7 @@ import traceback
 from collections import defaultdict
 from natsort import natsorted
 from pyrogram.parser import html as pyrogram_html
+from pyrogram.errors.exceptions.bad_request_400 import MessageIdInvalid
 from .. import PROGRESS_UPDATE_DELAY, ADMIN_CHATS, preserved_logs, TESTMODE, SendAsZipFlag, ForceDocumentFlag, LICHER_CHAT, LICHER_STICKER, LICHER_FOOTER, LICHER_PARSE_EPISODE
 from .misc import split_files, get_file_mimetype, format_bytes, get_video_info, generate_thumbnail, return_progress_string, calculate_eta, watermark_photo
 
@@ -280,7 +281,11 @@ async def progress_callback(current, total, client, message, reply, filename, us
                 async with message_exists_lock:
                     if reply.message_id not in message_exists[reply.chat.id]:
                         return
-                    await reply.edit_text(text)
+                    try:
+                        await reply.edit_text(text)
+                    except MessageIdInvalid:
+                        message_exists[reply.chat.id].discard(reply.message_id)
+                        return
                 prevtext = text
                 last_edit_time = time.time()
                 progress_callback_data[message_identifier] = last_edit_time, prevtext, start_time, user_id
