@@ -96,10 +96,9 @@ async def _upload_worker(client, message, reply, torrent_info, user_id, flags):
         else:
             for file in torrent_info['files']:
                 filepath = file['path']
+                filename = filepath.replace(os.path.join(torrent_info['dir'], ''), '', 1)
                 if LICHER_PARSE_EPISODE:
-                    filename = re.sub(r'\s*(?:\[.+?\]|\(.+?\))\s*|\.[a-z][a-z0-9]{2}$', '', os.path.basename(filepath))
-                else:
-                    filename = filepath.replace(os.path.join(torrent_info['dir'], ''), '', 1)
+                    filename = re.sub(r'\s*(?:\[.+?\]|\(.+?\))\s*|\.[a-z][a-z0-9]{2}$', '', os.path.basename(filepath)).strip() or filename
                 files[filepath] = filename
         for filepath in natsorted(files):
             sent_files.extend(await _upload_file(client, message, reply, files[filepath], filepath, ForceDocumentFlag in flags))
