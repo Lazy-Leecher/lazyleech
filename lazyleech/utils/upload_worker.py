@@ -27,7 +27,7 @@ import traceback
 from collections import defaultdict
 from natsort import natsorted
 from pyrogram.parser import html as pyrogram_html
-from pyrogram.errors.exceptions.bad_request_400 import MessageIdInvalid
+from pyrogram.errors.exceptions.bad_request_400 import MessageIdInvalid, MessageNotModified
 from .. import PROGRESS_UPDATE_DELAY, ADMIN_CHATS, preserved_logs, TESTMODE, SendAsZipFlag, ForceDocumentFlag, LICHER_CHAT, LICHER_STICKER, LICHER_FOOTER, LICHER_PARSE_EPISODE
 from .misc import split_files, get_file_mimetype, format_bytes, get_video_info, generate_thumbnail, return_progress_string, calculate_eta, watermark_photo
 
@@ -96,10 +96,9 @@ async def _upload_worker(client, message, reply, torrent_info, user_id, flags):
         else:
             for file in torrent_info['files']:
                 filepath = file['path']
+                filename = filepath.replace(os.path.join(torrent_info['dir'], ''), '', 1)
                 if LICHER_PARSE_EPISODE:
-                    filename = re.sub(r'\s*(?:\[.+?\]|\(.+?\))\s*|\.[a-z][a-z0-9]{2}$', '', os.path.basename(filepath))
-                else:
-                    filename = filepath.replace(os.path.join(torrent_info['dir'], ''), '', 1)
+                    filename = re.sub(r'\s*(?:\[.+?\]|\(.+?\))\s*|\.[a-z][a-z0-9]{2}$', '', os.path.basename(filepath)).strip() or filename
                 files[filepath] = filename
         for filepath in natsorted(files):
             sent_files.extend(await _upload_file(client, message, reply, files[filepath], filepath, ForceDocumentFlag in flags))
@@ -285,6 +284,8 @@ async def progress_callback(current, total, client, message, reply, filename, us
                     except MessageIdInvalid:
                         message_exists[reply.chat.id].discard(reply.message_id)
                         return
+                    except MessageNotModified:
+                        pass
                 prevtext = text
                 last_edit_time = time.time()
                 progress_callback_data[message_identifier] = last_edit_time, prevtext, start_time, user_id
