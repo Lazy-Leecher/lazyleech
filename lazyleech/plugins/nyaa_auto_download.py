@@ -29,7 +29,7 @@ if os.environ.get('DB_URL'):
         cr = []
         for i in rsslink:
             da = bs(requests.get(i).text, features="html.parser")
-            if (await A.find_one({'site':i}))==None:
+            if (await A.find_one({'site':i})) is None:
                 await A.insert_one({'_id': str(da.find('item').find('title')), 'site': i})
                 return
             count_a = 0
