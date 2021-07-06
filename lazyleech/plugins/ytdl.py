@@ -18,6 +18,7 @@ from typing import Any, Callable
 from concurrent.futures import ThreadPoolExecutor, Future
 from functools import wraps, partial
 from motor.frameworks.asyncio import _EXECUTOR
+from .. import ALL_CHATS
 from ..utils.aiohttp_helper import AioHttp as get_response
 import ujson
 import youtube_dl
@@ -116,6 +117,8 @@ user_search = defaultdict(list)
 
 @Client.on_message(filters.command("ytdl"))
 async def iytdl_inline(client: Client, message: Message):
+    if not message.chat.id in ALL_CHATS:
+        return
     reply = message.reply_to_message
     input_url = None
     k = message.text.split(None, 1)
