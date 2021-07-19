@@ -195,7 +195,7 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                     progress_args = (client, message, upload_wait, filename, user_id)
                     try:
                         if newFile is not None:
-                            newFileName = os.path.dirname(path)+'/'+newFile
+                            newFileName = os.path.dirname(filepath)+'/'+newFile
                             os.rename(filepath, newFileName)
                             filepath = newFileName
                         if not force_document and mimetype.startswith('video/'):
