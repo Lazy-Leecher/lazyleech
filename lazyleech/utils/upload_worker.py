@@ -177,8 +177,6 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
             if upload_identifier in stop_uploads:
                 return sent_files
             serialize = False
-            if ('{' and '}') in newFile:
-                serialize = True
             for a, (filepath, filename) in enumerate(to_upload):
                 while True:
                     if a:
@@ -203,7 +201,7 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                         ps = ''
                         regcheck = re.match('.*{(.*)}$', newFile)
                         if newFile is not None:
-                            if serialize is True and regcheck is not None:
+                            if regcheck is not None:
                                 sd = str(regcheck.groups()[0])
                                 sds = sd.split(',')
                                 sr = 3
