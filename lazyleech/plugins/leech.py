@@ -107,10 +107,14 @@ async def magnet_cmd(client, message):
         flags = (ForceDocumentFlag,)
     else:
         flags = ()
+    nf = None
     link = None
     reply = message.reply_to_message
     if text:
-        link = text[0].strip()
+        x = text[0].split(' | ', 1)
+        link = x[0].strip()
+        if len(x) == 2:
+            nf = x[1]
     elif not getattr(reply, 'empty', True):
         link = reply.text or reply.caption
     if not link:
@@ -124,9 +128,9 @@ async def magnet_cmd(client, message):
 - /filemagnet <i>&lt;Magnet URL&gt;</i> - Sends videos as files
 - /filemagnet <i>(as reply to a Magnet URL)</i> - Sends videos as files''')
         return
-    await initiate_magnet(client, message, link, flags)
+    await initiate_magnet(client, message, link, flags, nf)
 
-async def initiate_magnet(client, message, link, flags):
+async def initiate_magnet(client, message, link, flags, nf):
     user_id = message.from_user.id
     reply = await message.reply_text('Adding magnet...')
     try:
@@ -136,7 +140,7 @@ async def initiate_magnet(client, message, link, flags):
     except asyncio.TimeoutError:
         await asyncio.gather(message.reply_text('Magnet timed out'), reply.delete())
     else:
-        await handle_leech(client, message, gid, reply, user_id, flags)
+        await handle_leech(client, message, gid, reply, user_id, flags, nf)
 
 @Client.on_message(filters.command(['directdl', 'direct', 'zipdirectdl', 'zipdirect', 'filedirectdl', 'filedirect']) & filters.chat(ALL_CHATS))
 async def directdl_cmd(client, message):
