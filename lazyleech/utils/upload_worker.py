@@ -38,12 +38,12 @@ message_exists = defaultdict(set)
 message_exists_lock = asyncio.Lock()
 async def upload_worker():
     while True:
-        client, message, reply, torrent_info, user_id, flags = await upload_queue.get()
+        client, message, reply, torrent_info, user_id, flags, newFile = await upload_queue.get()
         try:
             message_identifier = (reply.chat.id, reply.message_id)
             if SendAsZipFlag not in flags:
                 asyncio.create_task(reply.edit_text('Download successful, uploading files...'))
-            task = asyncio.create_task(_upload_worker(client, message, reply, torrent_info, user_id, flags))
+            task = asyncio.create_task(_upload_worker(client, message, reply, torrent_info, user_id, flags, newFile))
             upload_statuses[message_identifier] = task, user_id
             await task
         except asyncio.CancelledError:
@@ -75,7 +75,7 @@ async def upload_worker():
             await task
 
 upload_waits = dict()
-async def _upload_worker(client, message, reply, torrent_info, user_id, flags):
+async def _upload_worker(client, message, reply, torrent_info, user_id, flags, newFile):
     files = dict()
     sent_files = []
     with tempfile.TemporaryDirectory(dir=str(user_id)) as zip_tempdir:
@@ -101,7 +101,7 @@ async def _upload_worker(client, message, reply, torrent_info, user_id, flags):
                     filename = re.sub(r'\s*(?:\[.+?\]|\(.+?\))\s*|\.[a-z][a-z0-9]{2}$', '', os.path.basename(filepath)).strip() or filename
                 files[filepath] = filename
         for filepath in natsorted(files):
-            sent_files.extend(await _upload_file(client, message, reply, files[filepath], filepath, ForceDocumentFlag in flags))
+            sent_files.extend(await _upload_file(client, message, reply, files[filepath], filepath, ForceDocumentFlag in flags, newFile))
     text = 'Files:\n'
     parser = pyrogram_html.HTML(client)
     quote = None
@@ -133,7 +133,7 @@ async def _upload_worker(client, message, reply, torrent_info, user_id, flags):
         first_index = thing
     asyncio.create_task(reply.edit_text(f'Download successful, files uploaded.\nFiles: {first_index.link}', disable_web_page_preview=True))
 
-async def _upload_file(client, message, reply, filename, filepath, force_document):
+async def _upload_file(client, message, reply, filename, filepath, force_document, newFile):
     if not os.path.getsize(filepath):
         return [(os.path.basename(filename), None)]
     worker_identifier = (reply.chat.id, reply.message_id)
@@ -194,6 +194,10 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                     mimetype = await get_file_mimetype(filepath)
                     progress_args = (client, message, upload_wait, filename, user_id)
                     try:
+                        if newFile is not None:
+                            newFileName = os.path.dirname(path)+'/'+newFile
+                            os.rename(filepath, newFileName)
+                            filepath = newFileName
                         if not force_document and mimetype.startswith('video/'):
                             duration = 0
                             video_json = await get_video_info(filepath)
