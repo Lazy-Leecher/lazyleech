@@ -53,7 +53,7 @@ async def torrent_cmd(client, message):
     nf = None
     if not link:
         if text:
-            x = text[0].split('|', 1)
+            x = text[0].split(' | ', 1)
             link = x[0].strip()
             if len(x)==2:
                 nf = x[1]
