@@ -174,6 +174,10 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                     await asyncio.sleep(1)
             if upload_identifier in stop_uploads:
                 return sent_files
+            serialize = False
+            if len(to_upload)>1:
+                serialize = True
+            count = 0
             for a, (filepath, filename) in enumerate(to_upload):
                 while True:
                     if a:
@@ -195,6 +199,17 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                     progress_args = (client, message, upload_wait, filename, user_id)
                     try:
                         if newFile is not None:
+                            ss = ''
+                            ps = ''
+                            if serialize is True:
+                                if ('{' and '}') in newFile:
+                                    regcheck = re.match('.*{(.*)}$', text)
+                                    if regcheck is not None:
+                                        sd = str(regcheck.groups()[0])
+                                        sds = sd.split(',')
+                                        sr = 3
+                                        if len(sds)==2:
+                                            sr = int(sds[1])
                             newFileName = os.path.dirname(filepath)+'/'+newFile
                             os.rename(filepath, newFileName)
                             filepath = newFileName
