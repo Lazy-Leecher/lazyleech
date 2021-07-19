@@ -32,6 +32,7 @@ auto_detects = dict()
 @Client.on_message(filters.chat(ALL_CHATS), group=1)
 async def autodetect(client, message):
     text = message.text
+    x = text.split(' | ', 1)
     document = message.document
     link = None
     is_torrent = False
@@ -47,21 +48,24 @@ async def autodetect(client, message):
                 os.remove(link)
                 link = None
                 is_torrent = False
+    newFile = None
     if not link and text:
-        match = NYAA_REGEX.match(text)
+        match = NYAA_REGEX.match(x[0])
         if match:
             link = f'https://{match.group("base")}/download/{match.group("sauce")}.torrent'
             is_torrent = True
         else:
-            splitted = urlsplit(text)
+            splitted = urlsplit(x[0])
             if splitted.scheme == 'magnet' and splitted.query:
-                link = text
+                link = x[0]
+        if len(x) == 2:
+            newFile = x[1]
     if link:
         reply = await message.reply_text(f'{"Torrent" if is_torrent else "Magnet"} detected. Select upload method', reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton('Individual Files', 'autodetect_individual'), InlineKeyboardButton('Zip', 'autodetect_zip'), InlineKeyboardButton('Force Document', 'autodetect_file')],
             [InlineKeyboardButton('Delete', 'autodetect_delete')]
         ]))
-        auto_detects[(reply.chat.id, reply.message_id)] = link, message.from_user.id, (initiate_torrent if is_torrent else initiate_magnet)
+        auto_detects[(reply.chat.id, reply.message_id)] = link, message.from_user.id, (initiate_torrent if is_torrent else initiate_magnet), newFile
 
 answered = set()
 answer_lock = asyncio.Lock()
@@ -73,7 +77,7 @@ async def autodetect_callback(client, callback_query):
     if not result:
         await callback_query.answer('I can\'t get your message, please try again.', show_alert=True, cache_time=3600)
         return
-    link, user_id, init_func = result
+    link, user_id, init_func, newFile = result
     if callback_query.from_user.id != user_id:
         await callback_query.answer('...no', cache_time=3600)
         return
@@ -95,4 +99,4 @@ async def autodetect_callback(client, callback_query):
             flags = (ForceDocumentFlag,)
         else:
             flags = ()
-        await asyncio.gather(callback_query.answer(), init_func(client, message.reply_to_message, link, flags))
+        await asyncio.gather(callback_query.answer(), init_func(client, message.reply_to_message, link, flags, newFile))
