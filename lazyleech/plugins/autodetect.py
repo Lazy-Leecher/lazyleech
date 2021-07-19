@@ -32,7 +32,8 @@ auto_detects = dict()
 @Client.on_message(filters.chat(ALL_CHATS), group=1)
 async def autodetect(client, message):
     text = message.text
-    x = text.split(' | ', 1)
+    if text:
+        x = text.split(' | ', 1)
     document = message.document
     link = None
     is_torrent = False
