@@ -198,23 +198,22 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                     mimetype = await get_file_mimetype(filepath)
                     progress_args = (client, message, upload_wait, filename, user_id)
                     try:
+                        ss = ''
+                        ps = ''
+                        regcheck = re.match('.*{(.*)}$', newFile)
                         if newFile is not None:
-                            ss = ''
-                            ps = ''
-                            if serialize is True:
-                                regcheck = re.match('.*{(.*)}$', newFile)
-                                if regcheck is not None:
-                                    sd = str(regcheck.groups()[0])
-                                    sds = sd.split(',')
-                                    sr = 3
-                                    if len(sds)==2:
-                                        sr = int(sds[1])
-                                    count += 1
-                                    if ('p' or 'P') in sds[0]:
-                                        ps = ('0'*(sr-len(str(count))))+(str(count))+' '
-                                    if ('s' or 'S') in sds[0]:
-                                        ss = ' '+('0'*(sr-len(str(count))))+(str(count))
-                                    newFile = re.sub(r'{.*}$', '', newFile)
+                            if serialize is True and regcheck is not None:
+                                sd = str(regcheck.groups()[0])
+                                sds = sd.split(',')
+                                sr = 3
+                                if len(sds)==2:
+                                    sr = int(sds[1])
+                                count += 1
+                                if ('p' or 'P') in sds[0]:
+                                    ps = ('0'*(sr-len(str(count))))+(str(count))+' '
+                                if ('s' or 'S') in sds[0]:
+                                    ss = ' '+('0'*(sr-len(str(count))))+(str(count))
+                                newFile = re.sub(r'{.*}$', '', newFile)
                             nf = newFile.split('.')
                             file_ext = nf.pop()
                             newFile = '.'.join(nf)
