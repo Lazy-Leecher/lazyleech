@@ -213,8 +213,8 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                                     ss = ' '+('0'*(sr-len(str(count))))+(str(count))
                                 newFile = re.sub(r'{.*}$', '', newFile)
                             nf = newFile.split('.')
-                            file_ext = nf.pop()
-                            newFile = '.'.join(nf)
+                            file_ext = nf.pop().strip()
+                            newFile = '.'.join(nf).strip()
                             newFileName = os.path.dirname(filepath)+'/'+ps+newFile+ss+'.'+file_ext
                             os.rename(filepath, newFileName)
                             filepath = newFileName
