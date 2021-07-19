@@ -14,7 +14,7 @@
 <h4>/filemagnet link | newFileName</h4>
 <h4>/zipmagnet link | newFileName</h4>
 <h4>link | newFileName (auto detects)</h4>
-
+<h3>Note: I have added serialize renaming for torrents with multiple files, well i am bad with explanation so just drop pm in tg @lostb053</h3>
 
 # Table of Content
 - [WHAT IS THIS REPO ABOUT ?](#what-is-this-repo-about)
