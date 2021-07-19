@@ -175,7 +175,7 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
             if upload_identifier in stop_uploads:
                 return sent_files
             serialize = False
-            if len(to_upload)>1:
+            if len(to_upload)>1 and ('{' and '}') in newFile:
                 serialize = True
             count = 0
             for a, (filepath, filename) in enumerate(to_upload):
@@ -202,15 +202,23 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                             ss = ''
                             ps = ''
                             if serialize is True:
-                                if ('{' and '}') in newFile:
-                                    regcheck = re.match('.*{(.*)}$', text)
-                                    if regcheck is not None:
-                                        sd = str(regcheck.groups()[0])
-                                        sds = sd.split(',')
-                                        sr = 3
-                                        if len(sds)==2:
-                                            sr = int(sds[1])
-                            newFileName = os.path.dirname(filepath)+'/'+newFile
+                                regcheck = re.match('.*{(.*)}$', newFile)
+                                if regcheck is not None:
+                                    sd = str(regcheck.groups()[0])
+                                    sds = sd.split(',')
+                                    sr = 3
+                                    if len(sds)==2:
+                                        sr = int(sds[1])
+                                    count += 1
+                                    if ('p' or 'P') in sds[0]:
+                                        ps = ('0'*(sr-len(str(count))))+(str(count))+' '
+                                    if ('s' or 'S') in sds[0]:
+                                        ss = ' '+('0'*(sr-len(str(count))))+(str(count))
+                                    newFile = re.sub(r'{.*}$', '', newFile)
+                            nf = newFile.split('.')
+                            file_ext = nf.pop()
+                            newFile = '.'.join(nf)
+                            newFileName = os.path.dirname(filepath)+'/'+ps+newFile+ss+'.'+file_ext
                             os.rename(filepath, newFileName)
                             filepath = newFileName
                         if not force_document and mimetype.startswith('video/'):
