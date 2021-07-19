@@ -4,16 +4,17 @@
 “	Heroku Supported Telegram Torrent Leeching Bot by Some Weebs ” 
 </p>
 
-<h1>USE THIS BRANCH ON YOUR RISK, I HAVE ADDED FILE-RENAMING IN TORRENT, MAGNET AND AUTO-DETECT FUNCTIONS IN THIS BRANCH</h1>
+
+<h2>USE THIS BRANCH ON YOUR RISK, I HAVE ADDED FILE-RENAMING IN TORRENT, MAGNET AND AUTO-DETECT FUNCTIONS IN THIS BRANCH</h2>
 
 <h4>/filetorrent link | newFileName</h4>
 <h4>/torrent link | newFileName</h4>
 <h4>/ziptorrent link | newFileName</h4>
-<h4>/magnet link | newFileName</h4><br>
+<h4>/magnet link | newFileName</h4>
 <h4>/filemagnet link | newFileName</h4>
 <h4>/zipmagnet link | newFileName</h4>
 <h4>link | newFileName (auto detects)</h4>
-
+<h3>Note that rename might break for torrents with multiple files, but can just use '/command link' to leech those torrents</h3>
 
 # Table of Content
 - [WHAT IS THIS REPO ABOUT ?](#what-is-this-repo-about)
