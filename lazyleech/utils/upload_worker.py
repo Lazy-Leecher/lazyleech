@@ -175,7 +175,7 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
             if upload_identifier in stop_uploads:
                 return sent_files
             serialize = False
-            if len(to_upload)>1 and ('{' and '}') in newFile:
+            if ('{' and '}') in newFile:
                 serialize = True
             count = 0
             for a, (filepath, filename) in enumerate(to_upload):
