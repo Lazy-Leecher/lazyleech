@@ -14,7 +14,7 @@
 <h4>/filemagnet link | newFileName</h4>
 <h4>/zipmagnet link | newFileName</h4>
 <h4>link | newFileName (auto detects)</h4>
-<h3>Note that rename might break for torrents with multiple files, but can just use '/command link' to leech those torrents</h3>
+
 
 # Table of Content
 - [WHAT IS THIS REPO ABOUT ?](#what-is-this-repo-about)
