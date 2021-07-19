@@ -100,8 +100,10 @@ async def _upload_worker(client, message, reply, torrent_info, user_id, flags, n
                 if LICHER_PARSE_EPISODE:
                     filename = re.sub(r'\s*(?:\[.+?\]|\(.+?\))\s*|\.[a-z][a-z0-9]{2}$', '', os.path.basename(filepath)).strip() or filename
                 files[filepath] = filename
+        fcount = 0
         for filepath in natsorted(files):
-            sent_files.extend(await _upload_file(client, message, reply, files[filepath], filepath, ForceDocumentFlag in flags, newFile))
+            fcount += 1
+            sent_files.extend(await _upload_file(client, message, reply, files[filepath], filepath, ForceDocumentFlag in flags, newFile, fcount))
     text = 'Files:\n'
     parser = pyrogram_html.HTML(client)
     quote = None
@@ -133,7 +135,7 @@ async def _upload_worker(client, message, reply, torrent_info, user_id, flags, n
         first_index = thing
     asyncio.create_task(reply.edit_text(f'Download successful, files uploaded.\nFiles: {first_index.link}', disable_web_page_preview=True))
 
-async def _upload_file(client, message, reply, filename, filepath, force_document, newFile):
+async def _upload_file(client, message, reply, filename, filepath, force_document, newFile, count):
     if not os.path.getsize(filepath):
         return [(os.path.basename(filename), None)]
     worker_identifier = (reply.chat.id, reply.message_id)
@@ -177,7 +179,6 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
             serialize = False
             if ('{' and '}') in newFile:
                 serialize = True
-            count = 0
             for a, (filepath, filename) in enumerate(to_upload):
                 while True:
                     if a:
@@ -208,7 +209,6 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                                 sr = 3
                                 if len(sds)==2:
                                     sr = int(sds[1])
-                                count += 1
                                 if ('p' or 'P') in sds[0]:
                                     ps = ('0'*(sr-len(str(count))))+(str(count))+' '
                                 if ('s' or 'S') in sds[0]:
