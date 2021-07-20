@@ -7,13 +7,15 @@
 
 <h2>USE THIS BRANCH ON YOUR RISK, I HAVE ADDED FILE-RENAMING IN TORRENT, MAGNET AND AUTO-DETECT FUNCTIONS IN THIS BRANCH</h2>
 
-<h4>/filetorrent link | newFileName</h4>
-<h4>/torrent link | newFileName</h4>
-<h4>/ziptorrent link | newFileName</h4>
-<h4>/magnet link | newFileName</h4>
-<h4>/filemagnet link | newFileName</h4>
-<h4>/zipmagnet link | newFileName</h4>
-<h4>link | newFileName (auto detects)</h4>
+<pre>
+/filetorrent link | newFileName
+/torrent link | newFileName
+/ziptorrent link | newFileName
+/magnet link | newFileName
+/filemagnet link | newFileName
+/zipmagnet link | newFileName
+link | newFileName (auto detects)
+</pre>
 <h3>Note: I have added serialize renaming for torrents with multiple files, well i am bad with explanation so just drop pm in tg @lostb053 for more info</h3>
 
 # Table of Content
