@@ -199,8 +199,8 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                     try:
                         ss = ''
                         ps = ''
-                        regcheck = re.match('.*{(.*)}$', newFile)
                         if newFile is not None:
+                            regcheck = re.match('.*{(.*)}$', newFile)
                             if regcheck is not None:
                                 sd = str(regcheck.groups()[0])
                                 sds = sd.split(',')
