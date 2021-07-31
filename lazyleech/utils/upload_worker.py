@@ -24,6 +24,7 @@ import asyncio
 import zipfile
 import tempfile
 import traceback
+from pyrogram import StopTransmission
 from collections import defaultdict
 from natsort import natsorted
 from pyrogram.parser import html as pyrogram_html
@@ -227,6 +228,8 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                             resp = await reply.reply_document(filepath, thumb=thumbnail, caption=filename,
                                                               parse_mode=None, progress=progress_callback,
                                                               progress_args=progress_args)
+                    except StopTransmission:
+                        resp = None
                     except Exception:
                         await message.reply_text(traceback.format_exc(), parse_mode=None)
                         continue
