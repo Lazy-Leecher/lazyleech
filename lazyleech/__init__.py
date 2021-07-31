@@ -45,6 +45,7 @@ LICHER_PARSE_EPISODE = LICHER_PARSE_EPISODE and LICHER_PARSE_EPISODE != '0'
 PROGRESS_UPDATE_DELAY = int(os.environ.get('PROGRESS_UPDATE_DELAY', 10))
 MAGNET_TIMEOUT = int(os.environ.get('LEECH_TIMEOUT', 60))
 LEECH_TIMEOUT = int(os.environ.get('LEECH_TIMEOUT', 300))
+ARIA2_SECRET = os.environ.get('ARIA2_SECRET', '')
 
 SOURCE_MESSAGE = '''
 <a href="https://github.com/Lazy-Leecher/lazyleech">lazyleech - Telegram bot primarily to leech from torrents and upload to Telegram</a>
