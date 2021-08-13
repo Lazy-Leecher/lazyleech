@@ -232,7 +232,7 @@ async def _upload_file(client, message, reply, filename, filepath, force_documen
                         resp = None
                     except Exception:
                         await message.reply_text(traceback.format_exc(), parse_mode=None)
-                        continue
+                        break
                     if resp:
                         sent_files.append((os.path.basename(filename), resp.link))
                         if LICHER_CHAT and reply.chat.id in ADMIN_CHATS and mimetype.startswith('video/') and resp.video:
