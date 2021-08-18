@@ -29,7 +29,7 @@ from collections import defaultdict
 from natsort import natsorted
 from pyrogram.parser import html as pyrogram_html
 from pyrogram.errors.exceptions.bad_request_400 import MessageIdInvalid, MessageNotModified
-from .. import PROGRESS_UPDATE_DELAY, ADMIN_CHATS, preserved_logs, TESTMODE, SendAsZipFlag, ForceDocumentFlag, LICHER_CHAT, LICHER_STICKER, LICHER_FOOTER, LICHER_PARSE_EPISODE
+from .. import PROGRESS_UPDATE_DELAY, ADMIN_CHATS, preserved_logs, TESTMODE, SendAsZipFlag, ForceDocumentFlag, LICHER_CHAT, LICHER_STICKER, LICHER_FOOTER, LICHER_PARSE_EPISODE, IGNORE_PADDING_FILE
 from .misc import split_files, get_file_mimetype, format_bytes, get_video_info, generate_thumbnail, return_progress_string, calculate_eta, watermark_photo
 
 upload_queue = asyncio.Queue()
@@ -90,7 +90,10 @@ async def _upload_worker(client, message, reply, torrent_info, user_id, flags):
             def _zip_files():
                 with zipfile.ZipFile(filepath, 'x') as zipf:
                     for file in torrent_info['files']:
-                        zipf.write(file['path'], file['path'].replace(os.path.join(torrent_info['dir'], ''), '', 1))
+                        filename = file['path'].replace(os.path.join(torrent_info['dir'], '')
+                        if IGNORE_PADDING_FILE and re.match(r'(?i)^_+padding_file', filename):
+                            continue
+                        zipf.write(file['path'], filename, '', 1))
             await asyncio.gather(reply.edit_text('Download successful, zipping files...'), client.loop.run_in_executor(None, _zip_files))
             asyncio.create_task(reply.edit_text('Download successful, uploading files...'))
             files[filepath] = filename
@@ -98,6 +101,8 @@ async def _upload_worker(client, message, reply, torrent_info, user_id, flags):
             for file in torrent_info['files']:
                 filepath = file['path']
                 filename = filepath.replace(os.path.join(torrent_info['dir'], ''), '', 1)
+                if IGNORE_PADDING_FILE and re.match(r'(?i)^_+padding_file', filename):
+                    continue
                 if LICHER_PARSE_EPISODE:
                     filename = re.sub(r'\s*(?:\[.+?\]|\(.+?\))\s*|\.[a-z][a-z0-9]{2}$', '', os.path.basename(filepath)).strip() or filename
                 files[filepath] = filename
