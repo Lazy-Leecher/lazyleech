@@ -56,7 +56,7 @@ async def rename(client, message):
     await msg.edit_text("Uploading...")
     await asyncio.sleep(PROGRESS_UPDATE_DELAY)
     await _upload_file(client, message, msg, name, filepath, flags)
-    await msg.edit_text("Renamed Files Successfully")
+    await msg.edit_text("File renamed")
     os.remove(filepath)
 
 help_dict['rename'] = ('Rename',
