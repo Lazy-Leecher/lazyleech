@@ -19,7 +19,6 @@ import html
 import math
 import os
 import re
-import time
 
 from pyrogram import Client, filters
 
@@ -29,13 +28,11 @@ from ..utils.upload_worker import _upload_file
 
 @Client.on_message(filters.command(['rename', 'filerename']) & filters.chat(ALL_CHATS))
 async def rename(client, message):
-    text = (message.text or message.caption).split(None, 1)
-    command = text.pop(0).lower()
+    command = message.command
     if 'file' in command:
         flags = (ForceDocumentFlag,)
     else:
         flags = ()
-    c_time = time.time()
     name = message.text.split(None, 1)[1]
     available_media = ("audio", "document", "photo", "sticker", "animation", "video", "voice", "video_note")
     download_message = None
@@ -58,11 +55,11 @@ async def rename(client, message):
     await download_message.download(filepath)
     await msg.edit_text("Uploading...")
     await asyncio.sleep(PROGRESS_UPDATE_DELAY)
-    await _upload_file(client, message, msg, name, filepath, ForceDocumentFlag in flags)
+    await _upload_file(client, message, msg, name, filepath, flags)
     await msg.edit_text("Renamed Files Successfully")
     os.remove(filepath)
 
-help_dict['extras'] = ('Extras',
+help_dict['rename'] = ('Rename',
 '''<b>Rename</b>
-/rename <i>[replied media]</i> 
-/filerename <i>[replied media]</i>''')
+/rename <i>as reply to file or as a caption</i>
+/filerename <i>as reply to file or as a caption</i>''')
