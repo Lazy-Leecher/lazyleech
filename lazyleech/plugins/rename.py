@@ -51,7 +51,7 @@ async def rename(client, message):
     if download_message is None:
         await message.reply_text('Media required')
         return
-    filepath = os.path.join(str(message.from_user.id), name)
+    filepath = name
     msg = await message.reply_text('Downloading...')
     await download_message.download(filepath)
     await msg.edit_text("Uploading...")
