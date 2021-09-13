@@ -310,13 +310,14 @@ async def list_leeches(client, message):
 async def cancel_leech(client, message):
     user_id = message.from_user.id
     gid = None
-    text = message.text.split(' ', 1)
-    text.pop(0)
     reply = message.reply_to_message
-    if text:
-        gid = text[0].strip()
-    elif not getattr(reply, 'empty', True):
-        reply_identifier = (reply.chat.id, reply.message_id)
+    if len(message.command) == 2:
+        gid = message.command[1]
+    elif len(message.command) == 3 or not getattr(reply, 'empty', True):
+        if len(message.command) == 3:
+            reply_identifier = tuple(message.command[1:3])
+        else:
+            reply_identifier = (reply.chat.id, reply.message_id)
         task = upload_statuses.get(reply_identifier)
         if task:
             task, starter_id = task
@@ -345,6 +346,7 @@ async def cancel_leech(client, message):
     if not gid:
         await message.reply_text('''Usage:
 /cancel <i>&lt;GID&gt;</i>
+/cancel <i>&lt;chat id&gt;</i> <i>&lt;message id&gt;</i>
 /cancel <i>(as reply to status message)</i>''')
         return
     if not is_gid_owner(user_id, gid) and not await allow_admin_cancel(message.chat.id, user_id):
@@ -387,6 +389,7 @@ help_dict['leech'] = ('Leech',
 /filedirect <i>(as reply to a Direct URL) | optional custom file name</i> - Sends videos as files
 
 /cancel <i>&lt;GID&gt;</i>
+/cancel <i>&lt;chat id&gt;</i> <i>&lt;message id&gt;</i>
 /cancel <i>(as reply to status message)</i>
 
 /list - Lists all current leeches''')
