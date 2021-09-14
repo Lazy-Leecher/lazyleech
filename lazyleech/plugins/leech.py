@@ -315,7 +315,11 @@ async def cancel_leech(client, message):
         gid = message.command[1]
     elif len(message.command) == 3 or not getattr(reply, 'empty', True):
         if len(message.command) == 3:
-            reply_identifier = tuple(message.command[1:3])
+            try:
+                reply_identifier = tuple(filter(int, message.command[1:3]))
+            except ValueError:
+                # goes through to the gid check with no gid, showing usage info and returning
+                reply_identifier = None
         else:
             reply_identifier = (reply.chat.id, reply.message_id)
         task = upload_statuses.get(reply_identifier)
