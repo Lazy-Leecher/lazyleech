@@ -27,6 +27,7 @@ import traceback
 from pyrogram import StopTransmission
 from collections import defaultdict
 from natsort import natsorted
+from pyrogram import StopTransmission
 from pyrogram.parser import html as pyrogram_html
 from pyrogram.errors.exceptions.bad_request_400 import MessageIdInvalid, MessageNotModified
 from .. import PROGRESS_UPDATE_DELAY, ADMIN_CHATS, preserved_logs, TESTMODE, SendAsZipFlag, ForceDocumentFlag, LICHER_CHAT, LICHER_STICKER, LICHER_FOOTER, LICHER_PARSE_EPISODE, IGNORE_PADDING_FILE
@@ -298,6 +299,8 @@ async def progress_callback(current, total, client, message, reply, filename, us
                 prevtext = text
                 last_edit_time = time.time()
                 progress_callback_data[message_identifier] = last_edit_time, prevtext, start_time, user_id
+    except StopTransmission:
+        raise
     except Exception as ex:
         preserved_logs.append((message, None, ex))
         logging.exception('%s', message)
