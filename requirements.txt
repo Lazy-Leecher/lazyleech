@@ -1,5 +1,5 @@
 feedparser
-pyrogram
+pyrogram==1.4.16
 tgcrypto
 natsort
 aiohttp
